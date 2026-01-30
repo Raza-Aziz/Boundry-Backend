@@ -1,6 +1,9 @@
 import express, { json, urlencoded } from "express";
 import connectDb from "./config/db.js";
 import cookieParser from "cookie-parser";
+import dotenv from "dotenv";
+
+dotenv.config();
 const app = express();
 
 connectDb();
@@ -16,7 +19,7 @@ app.use(cookieParser());
 
 app.get("/", (req, res) => res.send("Hello World"));
 
-const port = 5000;
+const port = process.env.PORT || 5000;
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);
 });
