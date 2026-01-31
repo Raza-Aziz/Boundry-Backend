@@ -22,9 +22,9 @@ const userSchema = mongoose.Schema({
     required: true,
     minlength: [8, "Password must be 8 characters long"],
   },
-  role: {
-    type: String,
-    default: "user",
+  isAdmin: {
+    type: Boolean,
+    default: false,
   },
   createdAt: {
     type: Date,
