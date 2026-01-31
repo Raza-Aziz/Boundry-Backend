@@ -24,7 +24,7 @@ const register = async (req, res) => {
   }
 
   // hash the password
-  const hashedPassword = hashPassword(password);
+  const hashedPassword = await hashPassword(password);
 
   // Create the User Instance
   const user = new User({
@@ -34,18 +34,17 @@ const register = async (req, res) => {
   });
 
   try {
-    // create http-only cookies
-    generateAccessToken(res, user._id);
-    generateRefreshToken(res, user._id);
-
     // save in database
     await user.save();
+
+    // create http-only cookies
+    generateAccessToken(res, user._id);
+    // generateRefreshToken(res, user._id);
 
     res.status(201).json({
       _id: user._id,
       username: user.username,
       email: user.email,
-      password: user.password,
       isAdmin: user.isAdmin,
     });
   } catch (error) {
@@ -53,4 +52,62 @@ const register = async (req, res) => {
   }
 };
 
-export { register };
+const login = async (req, res) => {
+  // extract details
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    throw new Error("Please fill all the fields");
+  }
+
+  const user = await User.findOne({ username: username });
+
+  if (!user) {
+    return res.status(404).json({ message: "Invalid credentials" });
+  }
+
+  const isPasswordValid = await comparePassword(password, user.password);
+
+  if (!isPasswordValid) {
+    return res.status(401).json({ message: "Invalid credentials" });
+  }
+
+  generateAccessToken(res, user._id);
+  // generateRefreshToken(res, user._id);
+
+  res.status(201).json({
+    _id: user._id,
+    username: user.username,
+    email: user.email,
+  });
+
+  return;
+};
+
+const logout = async (req, res) => {
+  // setting token-name as "" to clear it
+  // setting expiry to 1970, which means immediate deletion
+  res.cookie("jwt", "", {
+    httpOnly: true,
+    expires: new Date(0),
+  });
+
+  res.status(200).json({ message: "Logged out successfully" });
+};
+
+const getCurrentUser = async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    res.status(200).json({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin,
+    });
+  } else {
+    res.status(404).json({ message: "User not found" });
+  }
+};
+
+export { register, login, logout, getCurrentUser };
