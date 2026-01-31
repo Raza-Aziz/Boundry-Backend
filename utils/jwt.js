@@ -3,8 +3,10 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// TODO: Set Tokens as HTTP-only cookies
+
 export const generateAccessToken = (userId) => {
-  const accessToken = jwt.sign({ userId }, process.env.JWT_PRIVATE_KEY, {
+  const accessToken = jwt.sign({ userId }, process.env.JWT_ACCESS_KEY, {
     expiresIn: "1h",
   });
   return accessToken;
@@ -19,10 +21,10 @@ export const generateRefreshToken = (userId) => {
 
 export const verifyAccessToken = (token) => {
   try {
-    const isVerified = jwt.verify(token, process.env.JWT_PRIVATE_KEY);
+    const isVerified = jwt.verify(token, process.env.JWT_ACCESS_KEY);
     return isVerified;
   } catch (e) {
-    console.error(`Verification of Access Token failed :: ${e.message}`);
+    console.error(`Access Token Verification failed :: ${e.message}`);
     return null; // So the server doesn't crash on error
   }
 };
