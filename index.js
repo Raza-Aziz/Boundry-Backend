@@ -1,7 +1,9 @@
 import express, { json, urlencoded } from "express";
-import connectDb from "./config/db.js";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+
+import connectDb from "./config/db.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -15,7 +17,8 @@ app.use(express.urlencoded({ extended: true }));
 // To handle cookies
 app.use(cookieParser());
 
-// TODO: To handle user routes
+// handles user routes
+app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => res.send("Hello World"));
 
