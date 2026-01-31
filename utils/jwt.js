@@ -5,18 +5,30 @@ dotenv.config();
 
 // TODO: Set Tokens as HTTP-only cookies
 
-export const generateAccessToken = (userId) => {
+export const generateAccessToken = (res, userId) => {
   const accessToken = jwt.sign({ userId }, process.env.JWT_ACCESS_KEY, {
     expiresIn: "1h",
   });
-  return accessToken;
+
+  res.cookie("jwt", token, {
+    httpOnly: true,
+    sameSite: "strict",
+    secure: process.env.NODE_ENV,
+    maxAge: 1000 * 60 * 60,
+  });
 };
 
-export const generateRefreshToken = (userId) => {
+export const generateRefreshToken = (res, userId) => {
   const refreshToken = jwt.sign({ userId }, process.env.JWT_REFRESH_KEY, {
     expiresIn: "30d",
   });
-  return refreshToken;
+
+  res.cookie("jwt", token, {
+    httpOnly: true,
+    sameSite: "strict",
+    secure: process.env.NODE_ENV,
+    maxAge: 1000 * 60 * 60 * 24 * 30,
+  });
 };
 
 export const verifyAccessToken = (token) => {
