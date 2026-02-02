@@ -1,7 +1,7 @@
 import User from "../models/userModel";
 import { hashPassword } from "../utils/bcrypt.js";
 
-const getCurrentUserProfile = async (req, res) => {
+export const getCurrentUserProfile = async (req, res) => {
   const user = await User.findById(req.user._id)
     .select("username email phone avatar")
     .populate("listings"); // to include listingCount virtual
@@ -13,7 +13,7 @@ const getCurrentUserProfile = async (req, res) => {
   }
 };
 
-const updateProfile = async (req, res) => {
+export const updateProfile = async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (user) {
@@ -43,7 +43,7 @@ const updateProfile = async (req, res) => {
   }
 };
 
-const getUserPublicProfile = async (req, res) => {
+export const getUserPublicProfile = async (req, res) => {
   const user = await User.findById(req.params.id)
     .select("username createdAt avatar")
     .populate("listings");
@@ -54,5 +54,3 @@ const getUserPublicProfile = async (req, res) => {
     res.status(404).json({ message: "User not found" });
   }
 };
-
-export default { getCurrentUserProfile, updateProfile, getUserPublicProfile };
