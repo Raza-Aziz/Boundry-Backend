@@ -81,13 +81,9 @@ listingSchema = mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  // TODO: Replace with `timestamps: true`
   createdAt: {
     type: Date,
-    default: Date.now,
-  },
-  updatedAt: {
-    type: Date,
-    // ! : No () with function, only reference
     default: Date.now,
   },
 });
@@ -99,6 +95,10 @@ listingSchema.index({ areaSqft: 1 });
 listingSchema.index({ status: 1 });
 listingSchema.index({ isApproved: 1 });
 listingSchema.index({ "location.city": 1 });
+
+listingSchema.static("findByApprovedStatus", function (isApproved = true) {
+  return this.find({ isApproved });
+});
 
 const Listing = mongoose.model("Listing", listingSchema);
 
