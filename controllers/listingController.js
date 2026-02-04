@@ -124,7 +124,7 @@ export const updateListing = async (req, res) => {
     req.listing.bathrooms = req.body.bathrooms || listing.bathrooms;
     req.listing.areaSqft = req.body.areaSqft || listing.areaSqft;
     // TODO: Check for images
-    // req.listing.images = req.body.images || listing.images
+    req.listing.images = req.body.images || listing.images;
 
     // the listing will go back for approval
     req.listing.isApproved = false;
