@@ -1,4 +1,5 @@
 import Listing from "../models/listingModel.js";
+import buildQuery from "../utils/buildQuery.js";
 
 export const getAllListings = async (req, res) => {
   // 1. Basic pagination
@@ -9,19 +10,21 @@ export const getAllListings = async (req, res) => {
   const finalLimit = Math.min(limit, 100);
   const skip = (page - 1) * finalLimit;
 
-  // 2. get all the approved listings from DB
-  const listings = await Listing.findByApprovedStatus(true)
-    .sort({
-      createdAt: "desc",
-    })
-    .skip(skip)
-    .limit(finalLimit);
+  const filters = buildQuery(req.query);
 
-  const totalListings = await Listing.countDocuments({ isApproved: true });
+  const [listings, totalMatches] = await Promise.all([
+    Listing.find(filters)
+      .sort({
+        createdAt: "desc",
+      })
+      .skip(skip)
+      .limit(finalLimit),
+    Listing.countDocuments(filters),
+  ]);
 
   res.status(200).json({
     listings,
-    totalListings,
+    totalMatches,
     page,
     pages: Math.ceil(totalListings / finalLimit), // gives the number of pages
   });
