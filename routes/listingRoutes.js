@@ -17,3 +17,5 @@ router
   .get(checkOwnership, getListing)
   .put(checkOwnership, updateListing)
   .delete(checkOwnership, deleteListing);
+
+// TODO: Create /stats endpoint using MongoDB Aggregation for Dashboard insights (Module 4.4)
