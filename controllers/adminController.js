@@ -8,13 +8,15 @@ export const getuserPendingListings = async (req, res) => {
   const page = req.query.page || 1;
   const limit = req.query.limit;
 
-  const finalLimit = Math.ceil(limit, 100);
+  const finalLimit = Math.min(limit, 100);
   const skip = (page - 1) * finalLimit;
 
   const filter = { isApproved: false };
 
   // for that, we can use the .find() method with {isApproved: false
   const pendingListings = await Listing.find(filter)
+    // ? : Is .populate really necessary??
+    .populate("createdBy", "username avatar phone email")
     .sort({
       createdAt: "asc",
     })
@@ -38,5 +40,24 @@ export const getuserPendingListings = async (req, res) => {
     return res
       .status(500)
       .json({ message: "Server error fetching pending listings" });
+  }
+};
+
+export const approveUserListing = async (req, res) => {
+  try {
+    const approvedListing = await Listing.findByIdAndUpdate(
+      req.params.id,
+      { isApproved: true },
+      { new: true },
+    );
+
+    res.status(200).json({
+      message: "Listing approved successfully",
+      listing: approvedListing,
+    });
+  } catch (error) {
+    return res
+      .status(400)
+      .json({ message: `Listing could not be approved :: ${error}` });
   }
 };
