@@ -12,6 +12,7 @@ import { authenticateToken } from "../middleware/auth.js";
 const router = express.Router();
 
 router.route("/").get(getAllListings).post(authenticateToken, createListing);
+// TODO: Make a route to GET all pending listings for logged-in user
 router
   .route("/:id")
   .get(checkOwnership, getListing)
