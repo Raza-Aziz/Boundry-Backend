@@ -61,3 +61,22 @@ export const approveUserListing = async (req, res) => {
       .json({ message: `Listing could not be approved :: ${error}` });
   }
 };
+
+export const rejectUserListing = async (req, res) => {
+  try {
+    const rejectedListing = await Listing.findByIdAndUpdate(
+      req.params.id,
+      { isApproved: false },
+      { new: true },
+    );
+
+    res.status(200).json({
+      message: "Listing rejected successfully",
+      listing: rejectedListing,
+    });
+  } catch (error) {
+    return res
+      .status(400)
+      .json({ message: `Listing could not be rejected :: ${error}` });
+  }
+};
