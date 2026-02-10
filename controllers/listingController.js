@@ -26,7 +26,7 @@ export const getAllListings = async (req, res) => {
     listings,
     totalMatches,
     page,
-    pages: Math.ceil(totalListings / finalLimit), // gives the number of pages
+    pages: Math.ceil(totalMatches / finalLimit), // gives the number of pages
   });
 };
 
