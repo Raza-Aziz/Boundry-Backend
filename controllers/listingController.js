@@ -1,7 +1,7 @@
 import Listing from "../models/listingModel.js";
 import buildQuery from "../utils/buildQuery.js";
 
-export const getAllListings = async (req, res) => {
+export const getAllPublicListings = async (req, res) => {
   // 1. Basic pagination
   // NOTE : req.query.page OR limit will be strings, so convert to Number
   const page = Number(req.query.page);
@@ -28,6 +28,31 @@ export const getAllListings = async (req, res) => {
     page,
     pages: Math.ceil(totalMatches / finalLimit), // gives the number of pages
   });
+};
+
+// TODO: Merge pending and approved into one getUserListings method
+export const getUserListings = async (req, res) => {
+  try {
+    // Explicit comparison : checking with 'false' (String) and not Boolean false
+    // true if NOT false, false if === false, true if empty strings
+    const isApproved = req.query.isApproved !== "false";
+
+    const userListings = await Listing.find({
+      createdBy: req.user._id,
+      isApproved: isApproved,
+    }).sort({ createdAt: "desc" });
+
+    if (userListings.length === 0) {
+      return res.status(404).json({
+        message: `No ${isApproved ? "approved" : "pending"} listings.`,
+        listings: [],
+      });
+    }
+
+    res.status(200).json(userListings);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 export const getListing = async (req, res) => {
@@ -79,16 +104,16 @@ export const createListing = async (req, res) => {
 };
 
 export const deleteListing = async (req, res) => {
-  // find and delete the listing
-  // req.listing by middleware
-  const listing = req.listing;
+  try {
+    // find and delete the listing
+    // req.listing by middleware
+    const listing = req.listing;
 
-  await listing.deleteOne();
+    await listing.deleteOne();
 
-  if (listingDeleted) {
     res.status(200).json({ message: "Listing successfully deleted" });
-  } else {
-    res.status(400).json({ message: "Deleting listing failed" });
+  } catch (error) {
+    res.status(400).json({ message: `Deleting listing failed :: ${error}` });
   }
 };
 
