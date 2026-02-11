@@ -6,8 +6,8 @@ export const getUserPendingListings = async (req, res) => {
 
   // skip and limit for pagination
   // we can get limit and page from frontend as req.query
-  const page = req.query.page || 1;
-  const limit = req.query.limit;
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
 
   const finalLimit = Math.min(limit, 100);
   const skip = (page - 1) * finalLimit;

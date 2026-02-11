@@ -37,7 +37,7 @@ const buildQuery = (userRequests) => {
   }
 
   if ("propertyType" in userRequests) {
-    const propertyTypesArray = userRequests.propertyTypes.split(",");
+    const propertyTypesArray = userRequests.propertyType.split(",");
 
     query.propertyType = { $in: propertyTypesArray };
   }

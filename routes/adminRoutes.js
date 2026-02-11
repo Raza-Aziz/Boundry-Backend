@@ -31,4 +31,6 @@ router.route("/users").get(authenticateToken, authorizeAdmin, getAllUsers);
 router
   .route("/users/:id/role")
   .patch(authenticateToken, authorizeAdmin, changeUserAdminStatus);
-router.route("/users/:id").patch(authenticateToken, authorizeAdmin, deleteUser);
+router
+  .route("/users/:id")
+  .delete(authenticateToken, authorizeAdmin, deleteUser);

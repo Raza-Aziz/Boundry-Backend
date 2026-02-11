@@ -14,32 +14,16 @@ const checkOwnership = async (req, res, next) => {
   }
 
   // else if not approved
+  // check if user is logged in
   if (req.user) {
+    // check if user is ADMIN || CREATOR of listing
     if (req.user.isAdmin === true || listing.createdBy.equals(req.user._id)) {
       return next();
     }
   }
 
   // else if not logged in
-  return res
-    .status(403)
-    .json({ message: "Access denied. Listing pending approval." });
-
-  // ! : Other users cannot view the listing
-  // if (req.user) {
-  //   if (
-  //     listing.isApproved &&
-  //     (req.user.isAdmin === true || listing.createdBy.equals(req.user._id))
-  //   ) {
-  //     return next();
-  //   } else {
-  //     return res
-  //       .status(403)
-  //       .json({ message: "Access denied. Listing pending approval." });
-  //   }
-  // } else {
-  //   return res.status(403).json({ message: "User not logged in" });
-  // }
+  return res.status(403).json({ message: "Access denied." });
 };
 
 export default checkOwnership;
