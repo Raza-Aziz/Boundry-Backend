@@ -80,3 +80,21 @@ export const rejectUserListing = async (req, res) => {
       .json({ message: `Listing could not be rejected :: ${error}` });
   }
 };
+
+export const deleteUserListing = async (req, res) => {
+  try {
+    const deletedListing = await Listing.findByIdAndDelete(req.params.id);
+
+    if (!deletedListing) {
+      return res
+        .status(404)
+        .json({
+          message: "Listing not found. It may have already been deleted.",
+        });
+    }
+
+    res.status(200).json({ message: "Listing successfully deleted" });
+  } catch (error) {
+    res.status(500).json({ message: `Listing deletion failed :: ${error}` });
+  }
+};
