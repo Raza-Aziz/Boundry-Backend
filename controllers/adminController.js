@@ -1,6 +1,7 @@
 import Listing from "../models/listingModel";
+import User from "../models/userModel";
 
-export const getuserPendingListings = async (req, res) => {
+export const getUserPendingListings = async (req, res) => {
   // get all the listings that are unapproved
 
   // skip and limit for pagination
@@ -81,20 +82,49 @@ export const rejectUserListing = async (req, res) => {
   }
 };
 
+// TODO : Make one method for soft delete too
 export const deleteUserListing = async (req, res) => {
   try {
     const deletedListing = await Listing.findByIdAndDelete(req.params.id);
 
     if (!deletedListing) {
-      return res
-        .status(404)
-        .json({
-          message: "Listing not found. It may have already been deleted.",
-        });
+      return res.status(404).json({
+        message: "Listing not found. It may have already been deleted.",
+      });
     }
 
     res.status(200).json({ message: "Listing successfully deleted" });
   } catch (error) {
     res.status(500).json({ message: `Listing deletion failed :: ${error}` });
+  }
+};
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const [users, userCount] = await Promise.all([
+      User.find({}),
+      User.estimatedDocumentCount({}),
+    ]);
+
+    // I think , should include pagination, cause of many users
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit);
+
+    const finalLimit = Math.min(limit, 100);
+
+    const skip = (page - 1) * finalLimit;
+
+    if (!users) {
+      return res.status(404).json({ message: "No users found" });
+    }
+
+    res.status(200).json({
+      users,
+      userCount,
+      page,
+      pages: Math.ceil(userCount / finalLimit),
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
