@@ -20,7 +20,7 @@ router.post("/", authenticateToken, upload.array("images", 10), createListing);
 router.route("/my-listings").get(authenticateToken, getUserListings);
 router
   .route("/:id")
-  .get(getListing)
+  .get(getListing) // No need for checkOwnership as normal user won't be able to see then
   .put(checkOwnership, updateListing)
   .delete(checkOwnership, deleteListing);
 

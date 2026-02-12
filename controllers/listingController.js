@@ -74,54 +74,58 @@ export const getListing = async (req, res) => {
 };
 
 export const createListing = async (req, res) => {
-  const fields = [
-    title,
-    description,
-    price,
-    location,
-    propertyType,
-    status,
-    bedrooms,
-    bathrooms,
-    areaSqft,
-    // images,
-  ];
+  try {
+    const fields = [
+      "title",
+      "description",
+      "price",
+      "location",
+      "propertyType",
+      "status",
+      "bedrooms",
+      "bathrooms",
+      "areaSqft",
+    ];
 
-  if (fields.find((missingField) => !req.body[missingField])) {
-    return res.status(400).json({
-      message: `Please fill all required fields`,
+    if (fields.find((missingField) => !req.body[missingField])) {
+      return res.status(400).json({
+        message: `Please fill all required fields`,
+      });
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Please upload at least one image." });
+    }
+
+    const uploadPromises = req.files.map((file) =>
+      uploadOnCloudinary(file.path),
+    );
+    const uploadResults = await Promise.all(uploadPromises);
+
+    const imagesData = uploadResults
+      .filter((result) => result !== null)
+      .map((result) => ({ url: result.url, publicId: result.publicId }));
+
+    if (imageUrls.length === 0) {
+      return res
+        .status(500)
+        .json({ message: "Failed to upload images to Cloudinary" });
+    }
+
+    const newListing = new Listing({
+      ...req.body, // better de-structuring way
+      images: imagesData, // Inject the Cloudinary URLs and Public IDs
+      createdBy: req.user._id,
+      isApproved: false,
     });
+
+    const savedListing = await newListing.save();
+    res.status(201).json(savedListing);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
-
-  if (!req.files || req.files.length === 0) {
-    return res
-      .status(400)
-      .json({ message: "Please upload at least one image." });
-  }
-
-  const uploadPromises = req.files.map((file) => uploadOnCloudinary(file.path));
-  const uploadResults = await Promise.all(uploadPromises);
-
-  const imageUrls = uploadResults
-    .filter((result) => result !== null)
-    .map((result) => result.url);
-
-  if (imageUrls.length === 0) {
-    return res
-      .status(500)
-      .json({ message: "Failed to upload images to Cloudinary" });
-  }
-
-  const newListing = new Listing({
-    ...req.body, // better de-structuring way
-    images: imageUrls, // Inject the Cloudinary URLs
-    createdBy: req.user._id,
-    isApproved: false,
-  });
-
-  const savedListing = await newListing.save();
-
-  res.status(201).json(savedListing);
 };
 
 export const deleteListing = async (req, res) => {
@@ -141,16 +145,15 @@ export const deleteListing = async (req, res) => {
 export const updateListing = async (req, res) => {
   // check if owner (done by middleware)
   // extract the details to be updated
-  fields = [
-    title,
-    description,
-    price,
-    location,
-    propertyType,
-    bedrooms,
-    bathrooms,
-    areaSqft,
-    images,
+  const fields = [
+    "title",
+    "description",
+    "price",
+    "location",
+    "propertyType",
+    "bedrooms",
+    "bathrooms",
+    "areaSqft",
   ];
 
   if (fields.find((missingField) => !req.body[missingField])) {
@@ -164,22 +167,35 @@ export const updateListing = async (req, res) => {
 
   if (req.listing) {
     // replace existing with new data
-    req.listing.title = req.body.title || listing.title;
-    req.listing.description = req.body.description || listing.description;
-    req.listing.price = req.body.price || listing.price;
-    req.listing.location = req.body.location || listing.location;
-    req.listing.propertyType = req.body.propertyType || listing.propertyType;
-    req.listing.bedrooms = req.body.bedrooms || listing.bedrooms;
-    req.listing.bathrooms = req.body.bathrooms || listing.bathrooms;
-    req.listing.areaSqft = req.body.areaSqft || listing.areaSqft;
-    // TODO: Check for images
-    req.listing.images = req.body.images || listing.images;
+    req.listing.title = req.body.title || req.listing.title;
+    req.listing.description = req.body.description || req.listing.description;
+    req.listing.price = req.body.price || req.listing.price;
+    req.listing.location = req.body.location || req.listing.location;
+    req.listing.propertyType =
+      req.body.propertyType || req.listing.propertyType;
+    req.listing.bedrooms = req.body.bedrooms || req.listing.bedrooms;
+    req.listing.bathrooms = req.body.bathrooms || req.listing.bathrooms;
+    req.listing.areaSqft = req.body.areaSqft || req.listing.areaSqft;
+
+    if (req.files && req.files.length > 0) {
+      const uploadPromises = req.files.map((file) =>
+        uploadOnCloudinary(file.path),
+      );
+      const uploadResults = await Promise.all(uploadPromises);
+
+      const newImageData = uploadResults
+        .filter((res) => res !== null)
+        .map((result) => ({ url: result.url, publicId: result.publicId }));
+
+      // Appending with old images
+      req.listing.images.push(...newImageData);
+    }
 
     // the listing will go back for approval
     req.listing.isApproved = false;
 
     // re-save the document
-    const updatedListing = await listing.save();
+    const updatedListing = await req.listing.save();
 
     // send data to frontend
     res.status(200).json(updatedListing);
