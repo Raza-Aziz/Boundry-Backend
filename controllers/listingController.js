@@ -1,5 +1,6 @@
 import Listing from "../models/listingModel.js";
 import buildQuery from "../utils/buildQuery.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 export const getAllPublicListings = async (req, res) => {
   // 1. Basic pagination
@@ -73,7 +74,7 @@ export const getListing = async (req, res) => {
 };
 
 export const createListing = async (req, res) => {
-  fields = [
+  const fields = [
     title,
     description,
     price,
@@ -83,7 +84,7 @@ export const createListing = async (req, res) => {
     bedrooms,
     bathrooms,
     areaSqft,
-    images,
+    // images,
   ];
 
   if (fields.find((missingField) => !req.body[missingField])) {
@@ -92,8 +93,28 @@ export const createListing = async (req, res) => {
     });
   }
 
+  if (!req.files || req.files.length === 0) {
+    return res
+      .status(400)
+      .json({ message: "Please upload at least one image." });
+  }
+
+  const uploadPromises = req.files.map((file) => uploadOnCloudinary(file.path));
+  const uploadResults = await Promise.all(uploadPromises);
+
+  const imageUrls = uploadResults
+    .filter((result) => result !== null)
+    .map((result) => result.url);
+
+  if (imageUrls.length === 0) {
+    return res
+      .status(500)
+      .json({ message: "Failed to upload images to Cloudinary" });
+  }
+
   const newListing = new Listing({
     ...req.body, // better de-structuring way
+    images: imageUrls, // Inject the Cloudinary URLs
     createdBy: req.user._id,
     isApproved: false,
   });
