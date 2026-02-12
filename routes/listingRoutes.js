@@ -20,7 +20,7 @@ router.post("/", authenticateToken, upload.array("images", 10), createListing);
 router.route("/my-listings").get(authenticateToken, getUserListings);
 router
   .route("/:id")
-  .get(checkOwnership, getListing)
+  .get(getListing)
   .put(checkOwnership, updateListing)
   .delete(checkOwnership, deleteListing);
 
