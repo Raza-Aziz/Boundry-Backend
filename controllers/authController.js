@@ -10,10 +10,10 @@ import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
 
 const register = async (req, res) => {
   // extract the details
-  const { username, email, password } = req.body;
+  const { username, email, phone, password } = req.body;
 
   // if anything not present
-  if (!username || !email || !password) {
+  if (!username || !email || !phone || !password) {
     throw new Error("Please fill all the fields");
   }
 
@@ -30,6 +30,7 @@ const register = async (req, res) => {
   const user = new User({
     username: username,
     email: email,
+    phone: phone,
     password: hashedPassword,
   });
 
@@ -45,6 +46,7 @@ const register = async (req, res) => {
       _id: user._id,
       username: user.username,
       email: user.email,
+      phone: user.phone,
       isAdmin: user.isAdmin,
     });
   } catch (error) {
