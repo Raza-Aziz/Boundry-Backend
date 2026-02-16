@@ -9,7 +9,7 @@ import {
 const router = express.Router();
 
 router
-  .route("/me")
+  .route("/profile")
   .get(authenticateToken, getCurrentUserProfile)
   .put(authenticateToken, updateProfile);
 
