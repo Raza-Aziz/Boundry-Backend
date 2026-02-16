@@ -4,6 +4,6 @@ import { authenticateToken } from "../middleware/auth";
 
 const router = express.Router();
 
-router.route("/").post(register);
+router.route("/register").post(register);
 router.route("/login").post(login);
 router.route("/profile").get(authenticateToken, getCurrentUser);
