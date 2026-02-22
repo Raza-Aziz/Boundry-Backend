@@ -15,3 +15,5 @@ router
 
 // ! : Doesn't need authenticateToken middleware cause viewing PUBLIC profile
 router.route("/:id").get(getUserPublicProfile);
+
+export default router;

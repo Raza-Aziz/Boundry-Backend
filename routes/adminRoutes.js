@@ -1,5 +1,5 @@
 import express from "express";
-import { authenticateToken, authorizeAdmin } from "../middleware/auth";
+import { authenticateToken, authorizeAdmin } from "../middleware/auth.js";
 import {
   getUserPendingListings,
   approveUserListing,
@@ -8,7 +8,7 @@ import {
   getAllUsers,
   changeUserAdminStatus,
   deleteUser,
-} from "../controllers/adminController";
+} from "../controllers/adminController.js";
 
 const router = express.Router();
 
@@ -34,3 +34,5 @@ router
 router
   .route("/users/:id")
   .delete(authenticateToken, authorizeAdmin, deleteUser);
+
+export default router;
