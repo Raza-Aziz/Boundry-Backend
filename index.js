@@ -1,6 +1,7 @@
 import express, { json, urlencoded } from "express";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+import cors from "cors";
 
 import connectDb from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -12,6 +13,13 @@ dotenv.config();
 const app = express();
 
 connectDb();
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
 
 // To handle JSON values in request body
 app.use(express.json());
