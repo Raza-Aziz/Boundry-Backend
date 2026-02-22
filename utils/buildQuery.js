@@ -16,13 +16,12 @@ const buildQuery = (userRequests) => {
     }
   }
 
-  if (userRequests.search) {
-    // INFO : "i" meaning case-insensitive
-    query.title = { $regex: userRequests.search, $options: "i" };
-  }
-
   if ("bedrooms" in userRequests) {
     query.bedrooms = Number(userRequests.bedrooms);
+  }
+
+  if ("bathrooms" in userRequests) {
+    query.bathrooms = Number(userRequests.bathrooms);
   }
 
   if ("minAreaSqft" in userRequests || "maxAreaSqft" in userRequests) {
@@ -37,9 +36,11 @@ const buildQuery = (userRequests) => {
   }
 
   if ("propertyType" in userRequests) {
-    const propertyTypesArray = userRequests.propertyType.split(",");
+    query.propertyType = userRequests.propertyType;
+  }
 
-    query.propertyType = { $in: propertyTypesArray };
+  if ("status" in userRequests) {
+    query.status = userRequests.status;
   }
 
   return query;
