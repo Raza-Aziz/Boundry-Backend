@@ -13,11 +13,18 @@ export const getAllPublicListings = async (req, res) => {
 
   const filters = buildQuery(req.query);
 
+  const allowedFields = ["createdAt", "price", "areaSqft"];
+  const sortField = allowedFields.includes(req.query.sortBy)
+    ? req.query.sortBy
+    : "createdAt";      // default
+  
+    const sortOrder = req.query.sortOrder === "asc" ? 1 : -1;
   const [listings, totalMatches] = await Promise.all([
     Listing.find(filters)
       .sort({
-        createdAt: "desc",
+        [sortField]: sortOrder
       })
+      .populate("createdBy", "username avatar")
       .skip(skip)
       .limit(finalLimit),
     Listing.countDocuments(filters),
