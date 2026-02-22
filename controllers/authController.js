@@ -6,7 +6,7 @@ import { authenticateToken } from "../middleware/auth.js";
 import { authorizeAdmin } from "../middleware/auth.js";
 import User from "../models/userModel.js";
 import { hashPassword, comparePassword } from "../utils/bcrypt.js";
-import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
+import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
 
 const register = async (req, res) => {
   // extract the details
@@ -56,13 +56,13 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   // extract details
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
-  if (!username || !password) {
+  if (!email || !password) {
     throw new Error("Please fill all the fields");
   }
 
-  const user = await User.findOne({ username: username });
+  const user = await User.findOne({ email: email });
 
   if (!user) {
     return res.status(404).json({ message: "Invalid credentials" });
