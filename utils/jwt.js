@@ -10,10 +10,10 @@ export const generateAccessToken = (res, userId) => {
     expiresIn: "1h",
   });
 
-  res.cookie("jwt", token, {
+  res.cookie("jwt", accessToken, {
     httpOnly: true,
     sameSite: "strict",
-    secure: process.env.NODE_ENV,
+    secure: process.env.NODE_ENV === "production",
     maxAge: 1000 * 60 * 60,
   });
 };
@@ -23,10 +23,10 @@ export const generateRefreshToken = (res, userId) => {
     expiresIn: "30d",
   });
 
-  res.cookie("jwt", token, {
+  res.cookie("jwt", refreshToken, {
     httpOnly: true,
     sameSite: "strict",
-    secure: process.env.NODE_ENV,
+    secure: process.env.NODE_ENV === "production",
     maxAge: 1000 * 60 * 60 * 24 * 30,
   });
 };
