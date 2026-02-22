@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-listingSchema = mongoose.Schema({
+const listingSchema = mongoose.Schema({
   title: {
     type: String,
     required: true,

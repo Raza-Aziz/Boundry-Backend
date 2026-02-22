@@ -1,5 +1,5 @@
-import Listing from "../models/listingModel";
-import User from "../models/userModel";
+import Listing from "../models/listingModel.js";
+import User from "../models/userModel.js";
 
 export const getUserPendingListings = async (req, res) => {
   // get all the listings that are unapproved
