@@ -11,7 +11,7 @@ const router = express.Router();
 router
   .route("/profile")
   .get(authenticateToken, getCurrentUserProfile)
-  .put(authenticateToken, updateProfile);
+  .patch(authenticateToken, updateProfile);
 
 // ! : Doesn't need authenticateToken middleware cause viewing PUBLIC profile
 router.route("/:id").get(getUserPublicProfile);
