@@ -1,12 +1,6 @@
-import express from "express";
-import mongoose from "mongoose";
-import jwt from "jsonwebtoken";
-
-import { authenticateToken } from "../middleware/auth.js";
-import { authorizeAdmin } from "../middleware/auth.js";
 import User from "../models/userModel.js";
 import { hashPassword, comparePassword } from "../utils/bcrypt.js";
-import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
+import { generateAccessToken } from "../utils/jwt.js";
 
 const register = async (req, res) => {
   // extract the details
@@ -26,12 +20,16 @@ const register = async (req, res) => {
   // hash the password
   const hashedPassword = await hashPassword(password);
 
+  // const avatarUrl = `https://ui-avatars.com/api/?name=${username.split(" ").join("+")}&background=random&bold=true&size=128`;
+  const avatarUrl = `https://avatar.iran.liara.run/public/boy?username=${username.split(" ").join("+")}`;
+
   // Create the User Instance
   const user = new User({
     username: username,
     email: email,
     phone: phone,
     password: hashedPassword,
+    avatar: { url: avatarUrl },
   });
 
   try {
@@ -101,12 +99,7 @@ const getCurrentUser = async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (user) {
-    res.status(200).json({
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      isAdmin: user.isAdmin,
-    });
+    res.status(200).json(user);
   } else {
     res.status(404).json({ message: "User not found" });
   }
