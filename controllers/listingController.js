@@ -3,6 +3,8 @@ import buildQuery from "../utils/buildQuery.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 export const getAllPublicListings = async (req, res) => {
+  // const search = req.query.search
+
   // 1. Basic pagination
   // NOTE : req.query.page OR limit will be strings, so convert to Number
   const page = Number(req.query.page);
@@ -16,13 +18,13 @@ export const getAllPublicListings = async (req, res) => {
   const allowedFields = ["createdAt", "price", "areaSqft"];
   const sortField = allowedFields.includes(req.query.sortBy)
     ? req.query.sortBy
-    : "createdAt";      // default
-  
-    const sortOrder = req.query.sortOrder === "asc" ? 1 : -1;
+    : "createdAt"; // default
+
+  const sortOrder = req.query.sortOrder === "asc" ? 1 : -1;
   const [listings, totalMatches] = await Promise.all([
     Listing.find(filters)
       .sort({
-        [sortField]: sortOrder
+        [sortField]: sortOrder,
       })
       .populate("createdBy", "username avatar")
       .skip(skip)
@@ -38,26 +40,63 @@ export const getAllPublicListings = async (req, res) => {
   });
 };
 
-// TODO: Merge pending and approved into one getUserListings method
 export const getUserListings = async (req, res) => {
   try {
-    // Explicit comparison : checking with 'false' (String) and not Boolean false
-    // true if NOT false, false if === false, true if empty strings
-    const isApproved = req.query.isApproved !== "false";
+    const search = req.query.search || "";
+    const status = req.query.status || "all";
 
-    const userListings = await Listing.find({
-      createdBy: req.user._id,
-      isApproved: isApproved,
-    }).sort({ createdAt: "desc" });
+    const baseQuery = {
+      createdBy: req.user.id,
+      title: { $regex: search, $options: "i" },
+    };
+
+    switch (status.toLowerCase()) {
+      case "active":
+        baseQuery.isApproved = true;
+        baseQuery.acquiredStatus = null;
+        break;
+      case "pending":
+        baseQuery.isApproved = false;
+        baseQuery.acquiredStatus = null;
+        break;
+
+      case "sold":
+        baseQuery.acquiredStatus = { $in: ["sold", "rented"] };
+        break;
+
+      default:
+        break;
+    }
+
+    const page = Number(req.query.page) || 1;
+    const limit = 5;
+    const skip = (page - 1) * limit;
+
+    const [userListings, totalMatches] = await Promise.all([
+      Listing.find(baseQuery)
+        .sort({ createdAt: "desc" })
+        .limit(limit)
+        .skip(skip),
+      Listing.countDocuments({
+        createdBy: req.user.id,
+        title: { $regex: search, $options: "i" },
+      }),
+    ]);
 
     if (userListings.length === 0) {
-      return res.status(404).json({
-        message: `No ${isApproved ? "approved" : "pending"} listings.`,
+      return res.status(200).json({
+        // message: `No ${isApproved ? "approved" : "pending"} listings.`,
+        message: `No listings found.`,
         listings: [],
       });
     }
 
-    res.status(200).json(userListings);
+    res.status(200).json({
+      userListings,
+      page,
+      pages: Math.ceil(totalMatches / limit),
+      totalMatches,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -208,5 +247,34 @@ export const updateListing = async (req, res) => {
     res.status(200).json(updatedListing);
   } else {
     return res.status(404).json({ message: "Listing not found" });
+  }
+};
+
+export const toggleAcquiredStatus = async (req, res) => {
+  try {
+    // If the frontend explicitly sends the acquiredStatus, use it. Otherwise, toggle it.
+    if (req.body.acquiredStatus !== undefined) {
+      req.listing.acquiredStatus = req.body.acquiredStatus;
+    } else {
+      const type = req.listing.status;
+      const status = req.listing.acquiredStatus;
+
+      if (type === "for-sale") {
+        req.listing.acquiredStatus = status === "sold" ? null : "sold";
+      } else if (type === "for-rent") {
+        req.listing.acquiredStatus = status === "rented" ? null : "rented";
+      }
+    }
+
+    await req.listing.save();
+
+    return res.status(200).json({
+      message: "Status changed",
+      listing: req.listing,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: `Could not toggle status :: ${error.message}` });
   }
 };
