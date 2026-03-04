@@ -38,6 +38,11 @@ const listingSchema = mongoose.Schema({
       message: "{VALUE} is not a valid property type",
     },
   },
+  acquiredStatus: {
+    type: String,
+    lowercase: true,
+    enum: ["sold", "rented"],
+  },
   status: {
     type: String,
     required: true,
