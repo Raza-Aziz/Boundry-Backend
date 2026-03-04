@@ -48,7 +48,6 @@ const userSchema = mongoose.Schema({
     },
     publicId: { type: String, default: "" },
   },
-  // updatedAt: {}
 });
 
 userSchema.virtual("listings", {
