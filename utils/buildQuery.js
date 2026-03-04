@@ -16,6 +16,10 @@ const buildQuery = (userRequests) => {
     }
   }
 
+  if ("search" in userRequests) {
+    query["title"] = { $regex: userRequests.search, $options: "i" };
+  }
+
   if ("bedrooms" in userRequests) {
     query.bedrooms = Number(userRequests.bedrooms);
   }
