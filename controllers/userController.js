@@ -1,5 +1,6 @@
 import User from "../models/userModel.js";
 import { hashPassword } from "../utils/bcrypt.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 export const getCurrentUserProfile = async (req, res) => {
   const user = await User.findById(req.user._id)
@@ -20,11 +21,20 @@ export const updateProfile = async (req, res) => {
     user.username = req.body.username || user.username;
     user.email = req.body.email || user.email;
     user.phone = req.body.phone || user.phone;
+
     // TODO: Check for updating avatar too
-    // if (req.body.avatar) {
-    //   user.avatar.url = req.body.avatar.url || user.avatar.url;
-    //   user.avatar.publicId = req.body.avatar.publicId || user.avatar.publicId;
-    // }
+    if (req.file) {
+      const cloudinaryResponse = await uploadOnCloudinary(req.file.path);
+      if (cloudinaryResponse) {
+        user.avatar = {
+          url: cloudinaryResponse.url.replace(
+            "/upload/",
+            "/upload/f_auto,q_auto/",
+          ),
+          publicId: cloudinaryResponse.publicId,
+        };
+      }
+    }
 
     if (req.body.password) {
       user.password = await hashPassword(req.body.password);
@@ -32,12 +42,11 @@ export const updateProfile = async (req, res) => {
 
     const updatedUser = await user.save();
 
-    res.status(200).json({
-      _id: updatedUser._id,
-      username: updatedUser.username,
-      email: updatedUser.email,
-      phone: updatedUser.phone,
-    });
+    console.log(req.body);
+    console.log(user.avatar.url);
+    console.log(req.file);
+
+    res.status(200).json(updatedUser);
   } else {
     res.status(404).json({ message: "User not found" });
   }
