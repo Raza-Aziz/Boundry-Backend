@@ -16,7 +16,7 @@ connectDb();
 
 app.use(
   cors({
-    origin: ["http://localhost:5173","https://boundry.netlify.app"],
+    origin: ["http://localhost:5173", "https://boundry.netlify.app", "https://boundry.vercel.app"],
     credentials: true,
   }),
 );
