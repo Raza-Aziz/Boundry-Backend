@@ -8,10 +8,8 @@ export const getAllPublicListings = async (req, res) => {
   // 1. Basic pagination
   // NOTE : req.query.page OR limit will be strings, so convert to Number
   const page = Number(req.query.page);
-  const limit = Number(req.query.limit);
-
-  const finalLimit = Math.min(limit, 100);
-  const skip = (page - 1) * finalLimit;
+  const limit = 6;
+  const skip = (page - 1) * limit;
 
   const filters = buildQuery(req.query);
 
@@ -28,7 +26,7 @@ export const getAllPublicListings = async (req, res) => {
       })
       .populate("createdBy", "username avatar")
       .skip(skip)
-      .limit(finalLimit),
+      .limit(limit),
     Listing.countDocuments(filters),
   ]);
 
@@ -36,7 +34,7 @@ export const getAllPublicListings = async (req, res) => {
     listings,
     totalMatches,
     page,
-    pages: Math.ceil(totalMatches / finalLimit), // gives the number of pages
+    pages: Math.ceil(totalMatches / limit), // gives the number of pages
   });
 };
 
