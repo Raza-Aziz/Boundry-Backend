@@ -15,7 +15,7 @@ import { upload } from "../middleware/upload.js";
 const router = express.Router();
 
 router.route("/").get(getAllPublicListings);
-router.post("/", authenticateToken, upload.array("images", 10), createListing);
+router.post("/", authenticateToken, upload.array("images", 5), createListing);
 router.route("/my-listings").get(authenticateToken, getUserListings);
 
 router

@@ -20,8 +20,8 @@ const register = async (req, res) => {
   // hash the password
   const hashedPassword = await hashPassword(password);
 
-  // const avatarUrl = `https://ui-avatars.com/api/?name=${username.split(" ").join("+")}&background=random&bold=true&size=128`;
-  const avatarUrl = `https://avatar.iran.liara.run/public/boy?username=${username.split(" ").join("+")}`;
+  const avatarUrl = `https://ui-avatars.com/api/?name=${username.split(" ").join("+")}&background=random&bold=true&size=128`;
+  // const avatarUrl = `https://avatar.iran.liara.run/public/boy?username=${username.split(" ").join("+")}`;
 
   // Create the User Instance
   const user = new User({
@@ -57,7 +57,7 @@ const login = async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    throw new Error("Please fill all the fields");
+    return res.status(400).json({ message: "Please fill all the fields" });
   }
 
   const user = await User.findOne({ email: email });

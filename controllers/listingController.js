@@ -154,7 +154,7 @@ export const createListing = async (req, res) => {
       .filter((result) => result !== null)
       .map((result) => ({ url: result.url, publicId: result.publicId }));
 
-    if (imageUrls.length === 0) {
+    if (imagesData.length === 0) {
       return res
         .status(500)
         .json({ message: "Failed to upload images to Cloudinary" });
@@ -164,7 +164,8 @@ export const createListing = async (req, res) => {
       ...req.body, // better de-structuring way
       images: imagesData, // Inject the Cloudinary URLs and Public IDs
       createdBy: req.user._id,
-      isApproved: false,
+      // TODO : Change to false when making admin dashboard later on
+      isApproved: true,
     });
 
     const savedListing = await newListing.save();
@@ -238,7 +239,8 @@ export const updateListing = async (req, res) => {
     }
 
     // the listing will go back for approval
-    req.listing.isApproved = false;
+    // TODO : Change to false when making admin dashboard later on
+    req.listing.isApproved = true;
 
     // re-save the document
     const updatedListing = await req.listing.save();

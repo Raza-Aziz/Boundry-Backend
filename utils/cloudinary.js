@@ -16,12 +16,18 @@ export const uploadOnCloudinary = async (localFilePath) => {
 
     const response = await cloudinary.uploader.upload(localFilePath, {
       resource_type: "auto",
+      transformation: [
+        { width: 1000, crop: "scale" },
+        { quality: "auto" },
+        { fetch_format: "auto" },
+      ],
     });
 
     // file has been successfully uploaded
     console.log("File has been successfully uploaded:", response.url);
     return { url: response.url, publicId: response.public_id };
   } catch (error) {
+    console.error("Cloudinary upload failed:", error);
     // INFO : removes the locally saved temp file if the upload fails
     return null;
   } finally {
