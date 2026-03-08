@@ -3,8 +3,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// TODO: Set Tokens as HTTP-only cookies
-
 export const generateAccessToken = (res, userId) => {
   const accessToken = jwt.sign({ userId }, process.env.JWT_ACCESS_KEY, {
     expiresIn: "1h",
@@ -12,10 +10,21 @@ export const generateAccessToken = (res, userId) => {
 
   res.cookie("jwt", accessToken, {
     httpOnly: true,
+    // NOTE : Always change to none when deploying to prod
     sameSite: "none",
     secure: process.env.NODE_ENV === "production",
     maxAge: 1000 * 60 * 60,
   });
+};
+
+export const verifyAccessToken = (token) => {
+  try {
+    const isVerified = jwt.verify(token, process.env.JWT_ACCESS_KEY);
+    return isVerified;
+  } catch (e) {
+    console.error(`Access Token Verification failed :: ${e.message}`);
+    return null; // So the server doesn't crash on error
+  }
 };
 
 export const generateRefreshToken = (res, userId) => {
@@ -29,16 +38,6 @@ export const generateRefreshToken = (res, userId) => {
     secure: process.env.NODE_ENV === "production",
     maxAge: 1000 * 60 * 60 * 24 * 30,
   });
-};
-
-export const verifyAccessToken = (token) => {
-  try {
-    const isVerified = jwt.verify(token, process.env.JWT_ACCESS_KEY);
-    return isVerified;
-  } catch (e) {
-    console.error(`Access Token Verification failed :: ${e.message}`);
-    return null; // So the server doesn't crash on error
-  }
 };
 
 export const verifyRefreshToken = (token) => {
