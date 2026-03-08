@@ -43,8 +43,6 @@ const userSchema = mongoose.Schema({
   avatar: {
     url: {
       type: String,
-      // default:
-      //   "https://icons.veryicon.com/png/o/miscellaneous/cust-background-icon/default-avatar-3.png",
     },
     publicId: { type: String, default: "" },
   },
@@ -54,7 +52,7 @@ userSchema.virtual("listings", {
   ref: "Listing",
   count: true,
   localField: "_id",
-  foreignField: "owner",
+  foreignField: "createdBy",
 });
 
 // Creating index
