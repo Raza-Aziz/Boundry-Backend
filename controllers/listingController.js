@@ -3,8 +3,6 @@ import buildQuery from "../utils/buildQuery.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 export const getAllPublicListings = async (req, res) => {
-  // const search = req.query.search
-
   // 1. Basic pagination
   // NOTE : req.query.page OR limit will be strings, so convert to Number
   const page = Number(req.query.page);
@@ -83,7 +81,6 @@ export const getUserListings = async (req, res) => {
 
     if (userListings.length === 0) {
       return res.status(200).json({
-        // message: `No ${isApproved ? "approved" : "pending"} listings.`,
         message: `No listings found.`,
         listings: [],
       });
