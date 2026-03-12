@@ -3,6 +3,12 @@ npm-debug.log
 .env
 .git
 .gitignore
-Dockerfile
+Dockerfile*
 docker-compose*.yml
 uploads
+README.md
+LICENSE
+.vscode
+.idea
+*.log
+.DS_Store
