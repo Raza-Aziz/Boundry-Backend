@@ -1,0 +1,22 @@
+services:
+  backend:
+    build: .
+    container_name: boundry-backend
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    # Restart policy
+    restart: always
+
+# Note: You can add other services here later, like a local MongoDB service:
+#  mongodb:
+#    image: mongo:latest
+#    container_name: mongodb
+#    ports:
+#      - "27017:27017"
+#    volumes:
+#      - mongodb_data:/data/db
+#
+# volumes:
+#  mongodb_data:

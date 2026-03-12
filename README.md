@@ -45,7 +45,6 @@ The API uses RESTful conventions with JSON responses. Authentication is handled 
 - Node.js (v14 or higher)
 - MongoDB (local or cloud instance like MongoDB Atlas)
 - npm or yarn package manager
-
 ### Setup
 
 1. **Clone the repository**:
@@ -67,6 +66,49 @@ The API uses RESTful conventions with JSON responses. Authentication is handled 
    ```
 
    The server will start on port 5000 (or the port specified in `PORT` environment variable) and watch for file changes.
+
+### Running with Docker
+
+You can also run the backend using Docker for a more consistent and isolated environment.
+
+#### 1. Build the Image
+```bash
+docker build -t boundry-backend .
+```
+
+#### 2. Run the Container
+Since the backend requires several environment variables, the easiest way to run it is by passing your `.env` file:
+
+```bash
+docker run -p 5000:5000 --env-file .env boundry-backend
+```
+
+**What this command does:**
+- `-p 5000:5000`: Maps port 5000 on your machine to port 5000 in the container.
+- `--env-file .env`: Injects all variables from your local `.env` file into the container.
+
+Alternatively, you can pass variables individually:
+```bash
+docker run -p 5000:5000 -e MONGO_URI="your_uri" -e NODE_ENV="production" boundry-backend
+```
+
+### Running with Docker Compose
+
+Docker Compose simplifies the process of building and running your containers by using a configuration file.
+
+#### 1. Start the Backend
+```bash
+docker-compose up --build
+```
+
+**What this command does:**
+- `--build`: Forces a rebuild of the image before starting.
+- Automatically uses the `docker-compose.yml` file to handle port mapping and environment variables (via your `.env` file).
+
+#### 2. Stop the Backend
+```bash
+docker-compose down
+```
 
 ## Environment Variables
 
