@@ -1,6 +1,6 @@
 services:
   backend:
-    build: .
+    image: razaaziz/boundry-backend
     container_name: boundry-backend
     ports:
       - "5000:5000"
