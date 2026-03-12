@@ -94,16 +94,16 @@ docker run -p 5000:5000 -e MONGO_URI="your_uri" -e NODE_ENV="production" boundry
 
 ### Running with Docker Compose
 
-Docker Compose simplifies the process of building and running your containers by using a configuration file.
+Docker Compose simplifies the process of running your containers. Since the image is now hosted on Docker Hub, you don't even need the source code to run the backend—just the `docker-compose.yml` and your `.env` file.
 
 #### 1. Start the Backend
 ```bash
-docker-compose up --build
+docker-compose up
 ```
 
 **What this command does:**
-- `--build`: Forces a rebuild of the image before starting.
-- Automatically uses the `docker-compose.yml` file to handle port mapping and environment variables (via your `.env` file).
+- Automatically pulls the latest image from `razaaziz/boundry-backend` on Docker Hub (if not already local).
+- Handles port mapping and environment variables (via your `.env` file).
 
 #### 2. Stop the Backend
 ```bash
